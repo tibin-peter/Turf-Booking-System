@@ -1,7 +1,8 @@
+
 /.env
 /.idea
 /.vscode
-/go.sum
-/go.work
 bin/
 tmp/
+go.sum
+go.work
