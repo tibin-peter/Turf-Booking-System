@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS payments(
+    id SERIAL PRIMARY KEY,
+    booking_id INT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    method VARCHAR(20) DEFAULT 'success',
+    amount INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+)

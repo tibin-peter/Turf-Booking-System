@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS time_slots(
+    id SERIAL PRIMARY KEY,
+    turf_id INT NOT NULL REFERENCES turfs(id) ON DELETE CASCADE,
+    day DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
