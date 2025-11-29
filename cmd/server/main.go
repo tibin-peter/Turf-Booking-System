@@ -1,15 +1,24 @@
 package main
 
 import (
-	"fmt"
+	// "log"
+	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/tibin-peter/Turf-Booking-System/config"
 )
 
 func main() {
-	r := gin.Default()
 
-	fmt.Printf("Server running at port 8080")
+	godotenv.Load()
+	config.ConnectDB()
 
-	r.Run(":8080")
+	// r := routes.RegisterRoutes()
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	// log.Fatal(r.Run(":" + port))
 }
