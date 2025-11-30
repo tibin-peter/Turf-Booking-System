@@ -8,4 +8,5 @@ type RefreshToken struct {
 	Token     string    `gorm:"unique;not null"`
 	ExpiresAt time.Time `gorm:"not null"`
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }

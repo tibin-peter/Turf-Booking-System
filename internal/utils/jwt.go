@@ -5,47 +5,49 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/tibin-peter/Turf-Booking-System/internal/model"
 )
 
 var jwtkey = []byte(os.Getenv("JWT_SECRET"))
 
 type Claims struct {
-	Email string
-	Role  string
+	UserID uint   `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(u *model.User) (string, error) {
+func GenerateAccessToken(userID uint, email, role string) (string, time.Time, error) {
 	exp := time.Now().Add(5 * time.Minute)
 	claims := &Claims{
-		Email: u.Email,
-		Role:  u.Role,
+		UserID: userID,
+		Email:  email,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	s, err := token.SignedString(jwtkey)
-	return s, err
+	signed, err := token.SignedString(jwtkey)
+	return signed, exp, err
 }
-func GenerateRefreshToken(u *model.User) (string, int64) {
-	exp := time.Now().Add(24 * time.Hour).Unix()
+func GenerateRefreshToken(userID uint, email, role string) (string, time.Time, error) {
+	exp := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
-		Email: u.Email,
-		Role:  u.Role,
+		UserID: userID,
+		Email:  email,
+		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Unix(exp, 0)),
+			ExpiresAt: jwt.NewNumericDate(exp),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	s, _ := token.SignedString(jwtkey)
-	return s, exp
+	signed, err := token.SignedString(jwtkey)
+	return signed, exp, err
 }
-func ValidateToken(token string) (*Claims, bool) {
-	Claims := &Claims{}
-	t, err := jwt.ParseWithClaims(token, Claims, func(t *jwt.Token) (any, error) {
+func ValidateToken(token string) (*Claims, error) {
+	claims := &Claims{}
+	_, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (any, error) {
 		return jwtkey, nil
 	})
-	return Claims, err == nil && t.Valid
+	return claims, err
 }

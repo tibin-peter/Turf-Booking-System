@@ -1,11 +1,11 @@
 package config
 
-
 import (
 	"fmt"
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/tibin-peter/Turf-Booking-System/internal/model"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -14,6 +14,8 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() {
+
+	godotenv.Load()
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
@@ -40,7 +42,6 @@ func ConnectDB() {
 		log.Fatal("Migration failed", err)
 	}
 
-	fmt.Println("Auto migration completed successfully")
-
 	DB = db
+	fmt.Println("Auto migration completed successfully")
 }
