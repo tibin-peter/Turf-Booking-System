@@ -12,7 +12,7 @@ func AuthRequired() gin.HandlerFunc {
 
 		token, err := c.Cookie("access_token")
 		if err != nil || token == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
+			utils.JSONError(c, 401, "missing access_token")
 			c.Abort()
 			return
 		}

@@ -9,72 +9,61 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
-type AuthService struct{}
-
-func (s *AuthService) Regiser(u *model.User) error {
-	exist, _ := repository.FindUserByEmail(u.Email)
-	if exist.ID != 0 {
+func RegisterUser(u *model.User) error {
+	_, err := repository.FindUserByEmail(u.Email)
+	if err == nil {
 		return errors.New("email already registered")
 	}
-	hash, err := utils.HashPassword(u.Password)
-	if err != nil {
-		return err
-	}
-	u.Password = hash
-	u.Role = "user"
 
+	u.Password, _ = utils.HashPassword(u.Password)
 	return repository.CreateUser(u)
 }
-func (s *AuthService) Login(email, password string) (*model.User, string, string, time.Time, time.Time, error) {
-	u, err := repository.FindUserByEmail(email)
-	if err != nil || u.ID == 0 {
-		return nil, "", "", time.Time{}, time.Time{}, errors.New("invalid data")
-	}
-	if !utils.CheckPassword(password, u.Password) {
-		return nil, "", "", time.Time{}, time.Time{}, errors.New("wrong password")
-	}
-	access, accessExp, err := utils.GenerateAccessToken(u.ID, u.Email, u.Role)
+
+func LoginUser(email, password string) (model.User, string, string, time.Time, time.Time, error) {
+	user, err := repository.FindUserByEmail(email)
 	if err != nil {
-		return nil, "", "", time.Time{}, time.Time{}, err
-	}
-	refresh, refreshExp, err := utils.GenerateAccessToken(u.ID, u.Email, u.Role)
-	if err != nil {
-		return nil, "", "", time.Time{}, time.Time{}, err
+		return model.User{}, "", "", time.Now(), time.Now(), errors.New("invalid email")
 	}
 
-	rt := &model.RefreshToken{
-		UserID:    u.ID,
+	if !utils.CheckPassword(user.Password, password) {
+		return model.User{}, "", "", time.Now(), time.Now(), errors.New("invalid password")
+	}
+
+	access, accessExp, _ := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
+	refresh, refreshExp, _ := utils.GenerateRefreshToken(user.ID, user.Email, user.Role)
+	rt := model.RefreshToken{
+		UserID:    user.ID,
 		Token:     refresh,
 		ExpiresAt: refreshExp,
 	}
-	repository.SaveRefreshToken(rt)
-	return u, access, refresh, accessExp, refreshExp, nil
+
+	repository.SaveRefreshToken(&rt)
+
+	return user, access, refresh, accessExp, refreshExp, nil
 }
-func (s *AuthService) Rotate(oldToken string) (string, string, time.Time, time.Time, error) {
-	rt, err := repository.GetRefreshToken(oldToken)
-	if err != nil || rt.ID == 0 {
-		return "", "", time.Time{}, time.Time{}, errors.New("invalid refresh token")
-	}
-	if time.Now().After(rt.ExpiresAt) {
-		return "", "", time.Time{}, time.Time{}, errors.New("token expired please login")
-	}
-	user, err := repository.FindUserById(rt.UserID)
+
+func RefreshTokens(oldRefresh string) (string, string, time.Time, time.Time, error) {
+	rt, err := repository.GetRefreshToken(oldRefresh)
 	if err != nil {
-		return "", "", time.Time{}, time.Time{}, err
+		return "", "", time.Now(), time.Now(), errors.New("invalid refresh token")
 	}
 
-	newAccess, accessExp, _ := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
+	if time.Now().After(rt.ExpiresAt) {
+		return "", "", time.Now(), time.Now(), errors.New("refresh token expired")
+	}
+
+	user, _ := repository.FindUserByID(rt.UserID)
+
+	access, accessExp, _ := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
 	newRefresh, refreshExp, _ := utils.GenerateRefreshToken(user.ID, user.Email, user.Role)
 
-	repository.DeleteRefreshToken(oldToken)
+	rt.Token = newRefresh
+	rt.ExpiresAt = refreshExp
 
-	repository.SaveRefreshToken(&model.RefreshToken{
-		UserID:    user.ID,
-		Token:     newRefresh,
-		ExpiresAt: refreshExp,
-	})
-	return newAccess, newRefresh, accessExp, refreshExp, nil
+	repository.UpdateRefreshToken(&rt)
+	return access, newRefresh, accessExp, refreshExp, nil
 }
-func (s *AuthService) Logout(refresh string) error {
-	return repository.DeleteRefreshToken(refresh)
+
+func LogoutUser(token string) {
+	repository.DeleteRefreshToken(token)
 }
