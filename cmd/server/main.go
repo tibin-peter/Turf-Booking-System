@@ -19,6 +19,7 @@ func main() {
 		port = "8080"
 	}
 	routes.RegisterUserRoutes(r)
+	routes.TurfRoutes(r)
 
 	log.Fatal(r.Run(":" + port))
 }

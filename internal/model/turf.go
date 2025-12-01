@@ -9,4 +9,5 @@ type Turf struct {
 	PricePerHour int       `json:"price_per_hour"`
 	Description  string    `json:"description"`
 	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
