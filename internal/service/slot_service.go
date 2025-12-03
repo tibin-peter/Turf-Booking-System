@@ -6,5 +6,5 @@ import (
 )
 
 func ListSlotsByTurfID(turfID uint) ([]model.TimeSlot, error) {
-	return repository.GetSlotByTurfID(turfID)
+	return repository.GetSlotsByTurfID(turfID)
 }

@@ -21,6 +21,7 @@ func main() {
 	routes.RegisterUserRoutes(r)
 	routes.TurfRoutes(r)
 	routes.SlotRoutes(r)
+	routes.BookingRoutes(r)
 
 	log.Fatal(r.Run(":" + port))
 }
