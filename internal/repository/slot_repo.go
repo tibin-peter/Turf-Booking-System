@@ -23,3 +23,10 @@ func GetSlotByID(id uint) (model.TimeSlot, error) {
 func UpdateSlot(slot *model.TimeSlot) error {
 	return config.DB.Save(slot).Error
 }
+
+// Function for get slot by date
+func GetSlotByTurfAndDate(turfID uint, date string) ([]model.TimeSlot, error) {
+	var slots []model.TimeSlot
+	err := config.DB.Where("turf_id = ? AND DATE(day) = ?", turfID, date).Find(&slots).Error
+	return slots, err
+}

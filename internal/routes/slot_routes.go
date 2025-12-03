@@ -9,5 +9,6 @@ func SlotRoutes(r *gin.Engine) {
 	slots := r.Group("/slots")
 	{
 		slots.GET("/:turfID", handlers.GetSlotsByTurfID)
+		slots.GET("/:turfID/date", handlers.GetSlotByTurfIDAndDate)
 	}
 }
