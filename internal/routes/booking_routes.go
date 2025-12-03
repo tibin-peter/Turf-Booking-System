@@ -13,5 +13,6 @@ func BookingRoutes(r *gin.Engine) {
 		bookings.POST("/", handlers.CreateBooking)
 		bookings.GET("/my", handlers.ListBookings)
 		bookings.DELETE("/:id", handlers.CancelBooking)
+		bookings.POST("/:id/pay", handlers.ConfirmPayment)
 	}
 }

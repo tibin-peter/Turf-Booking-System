@@ -59,3 +59,28 @@ func CancelUserBooking(bookinID uint, userID uint) error {
 	}
 	return nil
 }
+
+// func for the payment conformation by the user
+func ConfirmPayment(bookinID uint, userID uint) error {
+	//fetching the booking
+	booking, err := repository.GetBookingByID(bookinID)
+	if err != nil {
+		return errors.New("booking not found")
+	}
+	//validating the user
+	if booking.UserID != userID {
+		return errors.New("not have a authorized to conformation")
+	}
+	//check payment mehtod
+	if booking.PaymentMethod != "dummy" {
+		return errors.New("payment conformation allowed only for dummy payment method")
+	}
+	//ensure not already confirmed
+	if booking.PaymentStatus == "sucess" {
+		return errors.New("payment alreadu approved by admin")
+	}
+	//update status
+	booking.PaymentStatus = "user_confimed"
+	booking.Status = "pending"
+	return repository.UpdateBooking(&booking)
+}

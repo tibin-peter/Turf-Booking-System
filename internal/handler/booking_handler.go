@@ -95,3 +95,30 @@ func CancelBooking(c *gin.Context) {
 	}
 	utils.JSONSuccess(c, "booking cancelled successfully", nil)
 }
+
+// function for payment conformation
+func ConfirmPayment(c *gin.Context) {
+	//get id from jwt middleware
+	uid, exists := c.Get("user_id")
+	if !exists {
+		utils.JSONError(c, 401, "unauthorized user")
+		return
+	}
+	userID := uid.(uint)
+	//get booking id from url
+	idParam := c.Param("id")
+	bookingID, err := strconv.Atoi(idParam)
+	if err != nil {
+		utils.JSONError(c, 400, "invalid booking id")
+		return
+	}
+
+	//call the service layer
+	if err := service.ConfirmPayment(uint(bookingID), userID); err != nil {
+		utils.JSONError(c, 400, err.Error())
+		return
+	}
+
+	//res
+	utils.JSONSuccess(c, "payment confirmation submitted", nil)
+}
