@@ -18,8 +18,8 @@ func RegisterUserRoutes(r *gin.Engine) {
 	protected := r.Group("/user")
 	protected.Use(middleware.AuthRequired())
 	{
-		protected.GET("/profile", func(c *gin.Context) {
-			c.JSON(200, gin.H{"message": "welcome"})
-		})
+		protected.GET("/profile", handlers.GetProfile)
+		protected.PUT("/update", handlers.UpdateProfile)
+		protected.GET("/bookings", handlers.BookingHistory)
 	}
 }

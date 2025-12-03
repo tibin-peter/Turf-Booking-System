@@ -20,3 +20,6 @@ func FindUserByID(id uint) (model.User, error) {
 	err := config.DB.First(&user, id).Error
 	return user, err
 }
+func UpdateUser(u *model.User) error {
+	return config.DB.Save(u).Error
+}

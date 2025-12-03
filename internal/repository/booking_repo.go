@@ -13,7 +13,7 @@ func CreateBooking(b *model.Booking) error {
 // List all bookings by user
 func GetUserBookings(userID uint) ([]model.Booking, error) {
 	var bookings []model.Booking
-	err := config.DB.Where("user_id = ?", userID).Find(&bookings).Error
+	err := config.DB.Where("user_id = ?", userID).Order("created_at desc").Find(&bookings).Error
 	return bookings, err
 }
 
