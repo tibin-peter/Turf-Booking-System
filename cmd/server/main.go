@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"os"
 
@@ -14,14 +15,19 @@ func main() {
 
 	r := gin.Default()
 
+	tmpl := template.Must(template.ParseGlob("templates/*.html"))
+	r.SetHTMLTemplate(tmpl)
+
+	routes.RegisterUserRoutes(r)
+	routes.SlotRoutes(r)
+	routes.TurfRoutes(r)
+	routes.BookingRoutes(r)
+	routes.RegisterAdminRoutes(r)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	routes.RegisterUserRoutes(r)
-	routes.TurfRoutes(r)
-	routes.SlotRoutes(r)
-	routes.BookingRoutes(r)
 
 	log.Fatal(r.Run(":" + port))
 }
