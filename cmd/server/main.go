@@ -11,13 +11,15 @@ import (
 )
 
 func main() {
+
 	config.ConnectDB()
 
 	r := gin.Default()
 
-	tmpl := template.Must(template.ParseGlob("templates/*.html"))
-	r.SetHTMLTemplate(tmpl)
+	// Load all templates
+	r.SetHTMLTemplate(loadTemplates())
 
+	// Register routes
 	routes.RegisterUserRoutes(r)
 	routes.SlotRoutes(r)
 	routes.TurfRoutes(r)
@@ -30,4 +32,10 @@ func main() {
 	}
 
 	log.Fatal(r.Run(":" + port))
+}
+
+func loadTemplates() *template.Template {
+	tmpl := template.New("")
+	template.Must(tmpl.ParseGlob("templates/*.html"))
+	return tmpl
 }

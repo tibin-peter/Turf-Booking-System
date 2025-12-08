@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,12 +8,12 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
-// func for show the login page
+// Show login page
 func ShowLoginPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", nil)
 }
 
-// func for admin login
+// handle login
 func AdminLogin(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
@@ -22,7 +21,7 @@ func AdminLogin(c *gin.Context) {
 	admin, err := repository.FindUserByEmail(email)
 	if err != nil || admin.Role != "admin" {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"error": "Invalid data",
+			"error": "Invalid email or password",
 		})
 		return
 	}
@@ -34,16 +33,11 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("login sucesss")
-	fmt.Println("setting cookie")
-
-	//creating session cookie
 	c.SetCookie("admin_session", email, 3600, "/", "", false, true)
-
 	c.Redirect(http.StatusFound, "/admin/dashboard")
 }
 
-// func for admin logout
+// logout
 func AdminLogout(c *gin.Context) {
 	c.SetCookie("admin_session", "", -1, "/", "", false, true)
 	c.Redirect(http.StatusFound, "/admin/login")

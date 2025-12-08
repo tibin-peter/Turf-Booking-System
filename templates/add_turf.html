@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Turf</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<header class="bg-blue-700 text-white p-4 text-center">
+    <h1 class="text-lg font-bold">Turf Booking Admin Panel</h1>
+</header>
+
+<div class="flex">
+
+    <aside class="w-64 bg-white shadow min-h-screen">
+        <nav class="p-4 space-y-2">
+            <a href="/admin/dashboard" class="block p-2 hover:bg-blue-100 rounded">Dashboard</a>
+            <a href="/admin/turfs" class="block p-2 hover:bg-blue-100 rounded">Manage Turfs</a>
+            <a href="/admin/logout" class="block p-2 bg-red-100 text-red-700 rounded">Logout</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-6 max-w-xl">
+
+        <h1 class="text-2xl font-bold mb-6">Add New Turf</h1>
+
+        <form action="/admin/turfs/add" method="POST" class="space-y-4">
+
+            <div>
+                <label class="font-semibold">Turf Name</label>
+                <input name="name" class="w-full border p-2 rounded" required>
+            </div>
+
+            <div>
+                <label class="font-semibold">Location</label>
+                <input name="location" class="w-full border p-2 rounded" required>
+            </div>
+
+            <div>
+                <label class="font-semibold">Price Per Hour (₹)</label>
+                <input type="number" name="price" class="w-full border p-2 rounded" required>
+            </div>
+
+            <div>
+                <label class="font-semibold">Description</label>
+                <textarea name="description" rows="4"
+                          class="w-full border p-2 rounded"></textarea>
+            </div>
+
+            <button class="px-4 py-2 bg-blue-600 text-white rounded">Add Turf</button>
+
+        </form>
+
+    </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turf Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<header class="bg-blue-700 text-white p-4 text-center">
+    <h1 class="text-lg font-bold">Turf Booking Admin Panel</h1>
+</header>
+
+<div class="flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow min-h-screen">
+        <nav class="p-4 space-y-2">
+            <a href="/admin/dashboard" class="block p-2 rounded hover:bg-blue-100 font-semibold">Dashboard</a>
+            <a href="/admin/turfs" class="block p-2 rounded hover:bg-blue-100">Manage Turfs</a>
+            <a href="/admin/slots" class="block p-2 rounded hover:bg-blue-100">Manage Slots</a>
+            <a href="/admin/bookings" class="block p-2 rounded hover:bg-blue-100">Manage Bookings</a>
+            <a href="/admin/payments" class="block p-2 rounded hover:bg-blue-100">Payments</a>
+            <a href="/admin/users" class="block p-2 rounded hover:bg-blue-100">Users</a>
+            <a href="/admin/logout" class="block p-2 bg-red-100 text-red-700 rounded">Logout</a>
+            
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-6">
+
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold">Turf Management</h1>
+
+            <a href="/admin/turfs/add"
+               class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Add Turf
+            </a>
+        </div>
+
+        <table class="w-full bg-white shadow rounded">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-3 text-left">ID</th>
+                    <th class="p-3 text-left">Name</th>
+                    <th class="p-3 text-left">Location</th>
+                    <th class="p-3 text-left">Price</th>
+                    <th class="p-3 text-left">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{ range .Turfs }}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-3">{{ .ID }}</td>
+                    <td class="p-3">{{ .Name }}</td>
+                    <td class="p-3">{{ .Location }}</td>
+                    <td class="p-3">₹{{ .PricePerHour }}</td>
+                    <td class="p-3 flex gap-3">
+                        <a href="/admin/turfs/edit/{{ .ID }}" class="text-blue-600">Edit</a>
+                        <a href="/admin/turfs/delete/{{ .ID }}" class="text-red-600"
+                           onclick="return confirm('Delete turf?');">
+                           Delete
+                        </a>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+
+    </main>
+</div>
+
+</body>
+</html>

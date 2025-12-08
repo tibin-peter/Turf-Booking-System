@@ -8,15 +8,22 @@ import (
 
 func RegisterAdminRoutes(r *gin.Engine) {
 
-	//admin login no middleware
+	// LOGIN (No Middleware)
 	r.GET("/admin/login", admin.ShowLoginPage)
 	r.POST("/admin/login", admin.AdminLogin)
 
-	//protected admin routes
+	// PROTECTED ADMIN ROUTES
 	adminPanel := r.Group("/admin")
 	adminPanel.Use(middleware.AdminAuthMiddleware())
 	{
 		adminPanel.GET("/logout", admin.AdminLogout)
 		adminPanel.GET("/dashboard", admin.ShowDashboardPage)
+
+		adminPanel.GET("/turfs", admin.AdminShowTurfs)
+		adminPanel.GET("/turfs/add", admin.AdminShowAddTurfPage)
+		adminPanel.POST("/turfs/add", admin.AdminAddTurf)
+		adminPanel.GET("/turfs/edit/:id", admin.AdminShowEditTurfPage)
+		adminPanel.POST("/turfs/edit/:id", admin.AdminEditTurf)
+		adminPanel.GET("/turfs/delete/:id", admin.AdminDeleteTurf)
 	}
 }
