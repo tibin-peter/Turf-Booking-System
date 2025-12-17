@@ -7,10 +7,19 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/repository"
 )
 
+type BookingService struct {
+	repo repository.Repository
+}
+
+func NewBookingService(repo repository.Repository) *BookingService {
+	return &BookingService{repo: repo}
+}
+
 // Create booking
-func CreteUserBooking(b *model.Booking) error {
+func (s *BookingService) CreateUserBooking(b *model.Booking) error {
 	//validate slot exist
-	slot, err := repository.GetSlotByID(b.SlotID)
+	var slot model.TimeSlot
+	err := s.repo.FindById(&slot, b.SlotID)
 	if err != nil {
 		return errors.New("slot not found")
 	}
@@ -19,24 +28,31 @@ func CreteUserBooking(b *model.Booking) error {
 		return errors.New("slot already booked")
 	}
 	//create booking
-	if err := repository.CreateBooking(b); err != nil {
+	if err := s.repo.Insert(b); err != nil {
 		return err
 	}
 	//changing the availability to false
 	slot.IsAvailable = false
-	return repository.UpdateSlot(&slot)
+	return s.repo.Update(&slot)
 }
 
 // List all bookings for user
-func ListUserBookings(userID uint) ([]model.Booking, error) {
-	return repository.GetUserBookings(userID)
+func (s *BookingService) ListUserBookings(userID uint) ([]model.Booking, error) {
+	var bookings []model.Booking
+	err := s.repo.FindMany(&bookings, "user_id = ?", userID)
+	if err != nil {
+		return []model.Booking{}, err
+	}
+
+	return bookings, nil
 }
 
 //Cancel booking
 
-func CancelUserBooking(bookinID uint, userID uint) error {
-	booking, err := repository.GetBookingByID(bookinID)
-	if err != nil {
+func (s *BookingService) CancelUserBooking(bookingID uint, userID uint) error {
+	var booking model.Booking
+
+	if err := s.repo.FindById(&booking, bookingID); err != nil {
 		return errors.New("booking not found")
 	}
 
@@ -48,22 +64,24 @@ func CancelUserBooking(bookinID uint, userID uint) error {
 	booking.Status = "cancelled"
 	booking.PaymentStatus = "refunded"
 
-	if err := repository.UpdateBooking(&booking); err != nil {
+	if err := s.repo.Update(&booking); err != nil {
 		return err
 	}
 	//free the slot again
-	slot, err := repository.GetSlotByID(booking.SlotID)
+	var slot model.TimeSlot
+	err := s.repo.FindById(&slot, booking.SlotID)
 	if err == nil {
 		slot.IsAvailable = true
-		repository.UpdateSlot(&slot)
+		s.repo.Update(&slot)
 	}
 	return nil
 }
 
 // func for the payment conformation by the user
-func ConfirmPayment(bookinID uint, userID uint) error {
+func (s *BookingService) ConfirmPayment(bookinID uint, userID uint) error {
 	//fetching the booking
-	booking, err := repository.GetBookingByID(bookinID)
+	var booking model.Booking
+	err := s.repo.FindById(&booking, bookinID)
 	if err != nil {
 		return errors.New("booking not found")
 	}
@@ -76,11 +94,11 @@ func ConfirmPayment(bookinID uint, userID uint) error {
 		return errors.New("payment conformation allowed only for dummy payment method")
 	}
 	//ensure not already confirmed
-	if booking.PaymentStatus == "sucess" {
+	if booking.PaymentStatus == "success" {
 		return errors.New("payment alreadu approved by admin")
 	}
 	//update status
-	booking.PaymentStatus = "user_confimed"
+	booking.PaymentStatus = "user_confirmed"
 	booking.Status = "pending"
-	return repository.UpdateBooking(&booking)
+	return s.repo.Update(&booking)
 }

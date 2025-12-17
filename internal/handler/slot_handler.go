@@ -8,8 +8,16 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
+type SlotHandler struct {
+	service *service.SlotService
+}
+
+func NewSlotHandler(service *service.SlotService) *SlotHandler {
+	return &SlotHandler{service: service}
+}
+
 // func for get available slot by turfid
-func GetSlotsByTurfID(c *gin.Context) {
+func (h *SlotHandler) GetSlotsByTurfID(c *gin.Context) {
 	//getting the id
 	turfIDParam := c.Param("turfID")
 	id, err := strconv.Atoi(turfIDParam)
@@ -17,7 +25,7 @@ func GetSlotsByTurfID(c *gin.Context) {
 		utils.JSONError(c, 400, "invalid turf id")
 		return
 	}
-	slots, err := service.ListSlotsByTurfID(uint(id))
+	slots, err := h.service.ListSlotsByTurfID(uint(id))
 	if err != nil {
 		utils.JSONError(c, 400, "slot not found")
 		return
@@ -26,7 +34,7 @@ func GetSlotsByTurfID(c *gin.Context) {
 }
 
 // func for get slots by the date
-func GetSlotByTurfIDAndDate(c *gin.Context) {
+func (h *SlotHandler) GetSlotByTurfIDAndDate(c *gin.Context) {
 	//extract turf id
 	turfIDParam := c.Param("turfID")
 	turfID, err := strconv.Atoi(turfIDParam)
@@ -41,7 +49,7 @@ func GetSlotByTurfIDAndDate(c *gin.Context) {
 		utils.JSONError(c, 400, "date is required")
 		return
 	}
-	slots, err := service.ListSlotByDate(uint(turfID), date)
+	slots, err := h.service.ListSlotByDate(uint(turfID), date)
 	if err != nil {
 		utils.JSONError(c, 400, "no slots found")
 		return

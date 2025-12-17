@@ -10,18 +10,35 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
-func RegisterUser(u *model.User) error {
-	_, err := repository.FindUserByEmail(u.Email)
+type AuthService struct {
+	repo repository.Repository
+}
+
+// dependency injection
+func NewAuthService(repo repository.Repository) *AuthService {
+	return &AuthService{repo: repo}
+}
+
+func (s *AuthService) RegisterUser(u *model.User) error {
+	// Check if email exists
+	var existing model.User
+	err := s.repo.FindOne(&existing, "email = ?", u.Email)
 	if err == nil {
 		return errors.New("email already registered")
 	}
 
+	// Hash password
 	u.Password, _ = utils.HashPassword(u.Password)
-	return repository.CreateUser(u)
+
+	// Insert user
+	return s.repo.Insert(u)
 }
 
-func LoginUser(email, password string) (model.User, string, string, time.Time, time.Time, error) {
-	user, err := repository.FindUserByEmail(email)
+func (s *AuthService) LoginUser(email, password string) (model.User, string, string, time.Time, time.Time, error) {
+	var user model.User
+
+	//find user by email
+	err := s.repo.FindOne(&user, "email = ?", email)
 	if err != nil {
 		return model.User{}, "", "", time.Now(), time.Now(), errors.New("invalid email")
 	}
@@ -38,13 +55,14 @@ func LoginUser(email, password string) (model.User, string, string, time.Time, t
 		ExpiresAt: refreshExp,
 	}
 
-	repository.SaveRefreshToken(&rt)
+	s.repo.Insert(&rt)
 
 	return user, access, refresh, accessExp, refreshExp, nil
 }
 
-func RefreshTokens(oldRefresh string) (string, string, time.Time, time.Time, error) {
-	rt, err := repository.GetRefreshToken(oldRefresh)
+func (s *AuthService) RefreshTokens(oldRefresh string) (string, string, time.Time, time.Time, error) {
+	var rt model.RefreshToken
+	err := s.repo.FindOne(&rt, "token = ?", oldRefresh)
 	if err != nil {
 		return "", "", time.Now(), time.Now(), errors.New("invalid refresh token")
 	}
@@ -53,7 +71,8 @@ func RefreshTokens(oldRefresh string) (string, string, time.Time, time.Time, err
 		return "", "", time.Now(), time.Now(), errors.New("refresh token expired")
 	}
 
-	user, _ := repository.FindUserByID(rt.UserID)
+	var user model.User
+	s.repo.FindById(&user, rt.UserID)
 
 	access, accessExp, _ := utils.GenerateAccessToken(user.ID, user.Email, user.Role)
 	newRefresh, refreshExp, _ := utils.GenerateRefreshToken(user.ID, user.Email, user.Role)
@@ -61,10 +80,10 @@ func RefreshTokens(oldRefresh string) (string, string, time.Time, time.Time, err
 	rt.Token = newRefresh
 	rt.ExpiresAt = refreshExp
 
-	repository.UpdateRefreshToken(&rt)
+	s.repo.Update(&rt)
 	return access, newRefresh, accessExp, refreshExp, nil
 }
 
-func LogoutUser(token string) {
-	repository.DeleteRefreshToken(token)
+func (s *AuthService) LogoutUser(token string) {
+	s.repo.Delete("token = ?", token)
 }

@@ -5,18 +5,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tibin-peter/Turf-Booking-System/internal/repository"
+	"github.com/tibin-peter/Turf-Booking-System/internal/model"
 )
 
-func ShowDashboardPage(c *gin.Context) {
+func (h *AdminHandler) ShowDashboardPage(c *gin.Context) {
 
-	totalUsers := repository.CountUsers()
-	totalTurfs := repository.CountTurfs()
-	totalSlots := repository.CountSlots()
-	totalBookings := repository.CountBookings()
+	totalUsers, _ := h.repo.Count(&model.User{}, "")
+	totalTurfs, _ := h.repo.Count(&model.Turf{}, "")
+	totalSlots, _ := h.repo.Count(&model.TimeSlot{}, "")
+	totalBookings, _ := h.repo.Count(&model.Booking{}, "")
 
 	today := time.Now().Format("2000-01-01")
-	todayBookings := repository.CountBookingsByDate(today)
+	todayBookings, _ := h.repo.Count(&model.Booking{}, today)
 
 	c.HTML(http.StatusOK, "dashboard.html", gin.H{
 		"TotalUsers":    totalUsers,

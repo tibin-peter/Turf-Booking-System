@@ -9,8 +9,16 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
+type BoookinHandler struct {
+	service *service.BookingService
+}
+
+func NewBookingHandler(service *service.BookingService) *BoookinHandler {
+	return &BoookinHandler{service: service}
+}
+
 // func for create booking
-func CreateBooking(c *gin.Context) {
+func (h *BoookinHandler) CreateBooking(c *gin.Context) {
 	uid, exist := c.Get("user_id")
 	if !exist {
 		utils.JSONError(c, 401, "unauthorized: user id missing")
@@ -41,7 +49,7 @@ func CreateBooking(c *gin.Context) {
 	}
 	//call service for logic
 
-	if err := service.CreteUserBooking(&booking); err != nil {
+	if err := h.service.CreateUserBooking(&booking); err != nil {
 		utils.JSONError(c, 400, err.Error())
 		return
 	}
@@ -53,7 +61,7 @@ func CreateBooking(c *gin.Context) {
 }
 
 // list user bookings
-func ListBookings(c *gin.Context) {
+func (h *BoookinHandler) ListBookings(c *gin.Context) {
 	uid, exist := c.Get("user_id")
 	if !exist {
 		utils.JSONError(c, 401, "unauthorized user")
@@ -61,7 +69,7 @@ func ListBookings(c *gin.Context) {
 	}
 	userID := uid.(uint)
 
-	bookings, err := service.ListUserBookings(userID)
+	bookings, err := h.service.ListUserBookings(userID)
 	if err != nil {
 		utils.JSONError(c, 400, err.Error())
 		return
@@ -73,7 +81,7 @@ func ListBookings(c *gin.Context) {
 }
 
 // func for cancel booking
-func CancelBooking(c *gin.Context) {
+func (h *BoookinHandler) CancelBooking(c *gin.Context) {
 	uid, exists := c.Get("user_id")
 	if !exists {
 		utils.JSONError(c, 401, "unauthorized")
@@ -89,7 +97,7 @@ func CancelBooking(c *gin.Context) {
 		return
 	}
 	//calling service
-	if err := service.CancelUserBooking(uint(bid), userID); err != nil {
+	if err := h.service.CancelUserBooking(uint(bid), userID); err != nil {
 		utils.JSONError(c, 400, err.Error())
 		return
 	}
@@ -97,7 +105,7 @@ func CancelBooking(c *gin.Context) {
 }
 
 // function for payment conformation
-func ConfirmPayment(c *gin.Context) {
+func (h *BoookinHandler) ConfirmPayment(c *gin.Context) {
 	//get id from jwt middleware
 	uid, exists := c.Get("user_id")
 	if !exists {
@@ -114,7 +122,7 @@ func ConfirmPayment(c *gin.Context) {
 	}
 
 	//call the service layer
-	if err := service.ConfirmPayment(uint(bookingID), userID); err != nil {
+	if err := h.service.ConfirmPayment(uint(bookingID), userID); err != nil {
 		utils.JSONError(c, 400, err.Error())
 		return
 	}

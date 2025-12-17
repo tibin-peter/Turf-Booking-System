@@ -7,7 +7,14 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
-func Register(c *gin.Context) {
+type AuthHandler struct {
+	service *service.AuthService
+}
+
+func NewAuthHandler(service *service.AuthService) *AuthHandler {
+	return &AuthHandler{service: service}
+}
+func (h *AuthHandler) Register(c *gin.Context) {
 	var u model.User
 
 	if err := c.ShouldBindJSON(&u); err != nil {
@@ -15,7 +22,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	if err := service.RegisterUser(&u); err != nil {
+	if err := h.service.RegisterUser(&u); err != nil {
 		utils.JSONError(c, 400, err.Error())
 		return
 	}
@@ -23,7 +30,7 @@ func Register(c *gin.Context) {
 	utils.JSONSuccess(c, "registration successful", nil)
 }
 
-func Login(c *gin.Context) {
+func (h *AuthHandler) Login(c *gin.Context) {
 	var body struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -35,7 +42,7 @@ func Login(c *gin.Context) {
 	}
 
 	user, access, refresh, accessExp, refreshExp, err :=
-		service.LoginUser(body.Email, body.Password)
+		h.service.LoginUser(body.Email, body.Password)
 
 	if err != nil {
 		utils.JSONError(c, 401, err.Error())
@@ -49,7 +56,7 @@ func Login(c *gin.Context) {
 	utils.JSONSuccess(c, "login successful", gin.H{"user": user})
 }
 
-func Refresh(c *gin.Context) {
+func (h *AuthHandler) Refresh(c *gin.Context) {
 	rt, err := c.Cookie("refresh_token")
 	if err != nil {
 		utils.JSONError(c, 401, "refresh token missing")
@@ -57,7 +64,7 @@ func Refresh(c *gin.Context) {
 	}
 
 	access, newRefresh, accessExp, refreshExp, err :=
-		service.RefreshTokens(rt)
+		h.service.RefreshTokens(rt)
 
 	if err != nil {
 		utils.JSONError(c, 401, err.Error())
@@ -70,14 +77,14 @@ func Refresh(c *gin.Context) {
 	utils.JSONSuccess(c, "token refreshed", nil)
 }
 
-func Logout(c *gin.Context) {
+func (h *AuthHandler) Logout(c *gin.Context) {
 	rt, err := c.Cookie("refresh_token")
 	if err != nil {
 		utils.JSONError(c, 400, "refresh token missing")
 		return
 	}
 
-	service.LogoutUser(rt)
+	h.service.LogoutUser(rt)
 
 	utils.ClearCookie(c, "access_token")
 	utils.ClearCookie(c, "refresh_token")

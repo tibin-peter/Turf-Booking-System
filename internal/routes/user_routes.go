@@ -6,20 +6,20 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/middleware"
 )
 
-func RegisterUserRoutes(r *gin.Engine) {
+func RegisterUserRoutes(r *gin.Engine, authH *handlers.AuthHandler, userH *handlers.UserHandler) {
 	auth := r.Group("/auth")
 	{
-		auth.POST("/register", handlers.Register)
-		auth.POST("/login", handlers.Login)
-		auth.GET("/refresh", handlers.Refresh)
-		auth.POST("/logout", handlers.Logout)
+		auth.POST("/register", authH.Register)
+		auth.POST("/login", authH.Login)
+		auth.GET("/refresh", authH.Refresh)
+		auth.POST("/logout", authH.Logout)
 	}
 
 	protected := r.Group("/user")
 	protected.Use(middleware.AuthRequired())
 	{
-		protected.GET("/profile", handlers.GetProfile)
-		protected.PUT("/update", handlers.UpdateProfile)
-		protected.GET("/bookings", handlers.BookingHistory)
+		protected.GET("/profile", userH.GetProfile)
+		protected.PUT("/update", userH.UpdateProfile)
+		protected.GET("/bookings", userH.BookingHistory)
 	}
 }

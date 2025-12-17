@@ -8,15 +8,29 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
+type UserService struct {
+	repo repository.Repository
+}
+
+// dependency injection
+func NewUserService(repo repository.Repository) *UserService {
+	return &UserService{repo: repo}
+}
+
 // func for get the user profile
-func GetUserProfile(UserID uint) (model.User, error) {
-	return repository.FindUserByID(UserID)
+func (s *UserService) GetUserProfile(UserID uint) (model.User, error) {
+	var user model.User
+	err := s.repo.FindById(&user, UserID)
+	if err != nil {
+		return model.User{}, err
+	}
+	return user, nil
 }
 
 // func for update the user profile
-func UpdateUserProfile(userID uint, data model.User) error {
-	user, err := repository.FindUserByID(userID)
-	if err != nil {
+func (s *UserService) UpdateUserProfile(userID uint, data model.User) error {
+	var user model.User
+	if err := s.repo.FindById(&user, userID); err != nil {
 		return errors.New("user not found")
 	}
 	//update name
@@ -25,9 +39,10 @@ func UpdateUserProfile(userID uint, data model.User) error {
 	}
 	if data.Email != "" && data.Email != user.Email {
 		//update email
-		exists, _ := repository.FindUserByEmail(data.Email)
-		if exists.ID != 0 {
-			return errors.New("email alredy in use")
+		var existing model.User
+		err := s.repo.FindOne(&existing, "email = ?", data.Email)
+		if err == nil && existing.ID != 0 {
+			return errors.New("email already existing")
 		}
 		user.Email = data.Email
 	}
@@ -36,10 +51,15 @@ func UpdateUserProfile(userID uint, data model.User) error {
 		hased, _ := utils.HashPassword(data.Password)
 		user.Password = hased
 	}
-	return repository.UpdateUser(&user)
+	return s.repo.Update(&user)
 }
 
 // func for getting the booking history
-func GetBookingHistory(userID uint) ([]model.Booking, error) {
-	return repository.GetUserBookings(userID)
+func (s *UserService) GetBookingHistory(userID uint) ([]model.Booking, error) {
+	var bookings []model.Booking
+	err := s.repo.FindMany(&bookings, "user_id = ?", userID)
+	if err != nil {
+		return nil, err
+	}
+	return bookings, nil
 }

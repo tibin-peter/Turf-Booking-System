@@ -6,24 +6,24 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/internal/middleware"
 )
 
-func RegisterAdminRoutes(r *gin.Engine) {
+func RegisterAdminRoutes(r *gin.Engine, adminH *admin.AdminHandler) {
 
 	// LOGIN (No Middleware)
-	r.GET("/admin/login", admin.ShowLoginPage)
-	r.POST("/admin/login", admin.AdminLogin)
+	r.GET("/admin/login", adminH.ShowLoginPage)
+	r.POST("/admin/login", adminH.AdminLogin)
 
 	// PROTECTED ADMIN ROUTES
 	adminPanel := r.Group("/admin")
 	adminPanel.Use(middleware.AdminAuthMiddleware())
 	{
-		adminPanel.GET("/logout", admin.AdminLogout)
-		adminPanel.GET("/dashboard", admin.ShowDashboardPage)
+		adminPanel.GET("/logout", adminH.AdminLogout)
+		adminPanel.GET("/dashboard", adminH.ShowDashboardPage)
 
-		adminPanel.GET("/turfs", admin.AdminShowTurfs)
-		adminPanel.GET("/turfs/add", admin.AdminShowAddTurfPage)
-		adminPanel.POST("/turfs/add", admin.AdminAddTurf)
-		adminPanel.GET("/turfs/edit/:id", admin.AdminShowEditTurfPage)
-		adminPanel.POST("/turfs/edit/:id", admin.AdminEditTurf)
-		adminPanel.GET("/turfs/delete/:id", admin.AdminDeleteTurf)
+		adminPanel.GET("/turfs", adminH.AdminShowTurfs)
+		adminPanel.GET("/turfs/add", adminH.AdminShowAddTurfPage)
+		adminPanel.POST("/turfs/add", adminH.AdminAddTurf)
+		adminPanel.GET("/turfs/edit/:id", adminH.AdminShowEditTurfPage)
+		adminPanel.POST("/turfs/edit/:id", adminH.AdminEditTurf)
+		adminPanel.GET("/turfs/delete/:id", adminH.AdminDeleteTurf)
 	}
 }

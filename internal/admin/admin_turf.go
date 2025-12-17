@@ -6,12 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/tibin-peter/Turf-Booking-System/internal/model"
-	"github.com/tibin-peter/Turf-Booking-System/internal/repository"
 )
 
 // function for list all turfs
-func AdminShowTurfs(c *gin.Context) {
-	turfs, err := repository.GetAllTurfs()
+func (h *AdminHandler) AdminShowTurfs(c *gin.Context) {
+	var turfs []model.Turf
+	err := h.repo.FindMany(&turfs, "1=1")
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "turfs_list.html", gin.H{
 			"error": "Failed to load turfs",
@@ -25,12 +25,12 @@ func AdminShowTurfs(c *gin.Context) {
 }
 
 // for showing the add page
-func AdminShowAddTurfPage(c *gin.Context) {
+func (h *AdminHandler) AdminShowAddTurfPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "add_turf.html", nil)
 }
 
 // func for adding a new turf
-func AdminAddTurf(c *gin.Context) {
+func (h *AdminHandler) AdminAddTurf(c *gin.Context) {
 
 	name := c.PostForm("name")
 	location := c.PostForm("location")
@@ -52,7 +52,7 @@ func AdminAddTurf(c *gin.Context) {
 		Description:  description,
 	}
 
-	err = repository.CreateTurf(&newTurf)
+	err = h.repo.Insert(&newTurf)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "add_turf.html", gin.H{
 			"error": "Failed to add turf",
@@ -64,12 +64,12 @@ func AdminAddTurf(c *gin.Context) {
 }
 
 // for showing the edit page
-func AdminShowEditTurfPage(c *gin.Context) {
-
+func (h *AdminHandler) AdminShowEditTurfPage(c *gin.Context) {
+	var turf model.Turf
 	idStr := c.Param("id")
 	id, _ := strconv.Atoi(idStr)
 
-	turf, err := repository.GetTurfByID(uint(id))
+	err := h.repo.FindById(&turf, uint(id))
 	if err != nil {
 		c.HTML(http.StatusNotFound, "turfs_list.html", gin.H{
 			"error": "Turf not found",
@@ -81,8 +81,8 @@ func AdminShowEditTurfPage(c *gin.Context) {
 }
 
 // fuction for edit the turf details
-func AdminEditTurf(c *gin.Context) {
-
+func (h *AdminHandler) AdminEditTurf(c *gin.Context) {
+	var turf model.Turf
 	idStr := c.Param("id")
 	id, _ := strconv.Atoi(idStr)
 
@@ -99,8 +99,7 @@ func AdminEditTurf(c *gin.Context) {
 		return
 	}
 
-	turf, err := repository.GetTurfByID(uint(id))
-	if err != nil {
+	if err := h.repo.FindById(&turf, uint(id)); err != nil {
 		c.HTML(http.StatusNotFound, "edit_turf.html", gin.H{
 			"error": "Turf not found",
 		})
@@ -112,18 +111,23 @@ func AdminEditTurf(c *gin.Context) {
 	turf.PricePerHour = price
 	turf.Description = description
 
-	repository.UpdateTurf(&turf)
+	if err := h.repo.Update(&turf); err != nil {
+		c.HTML(http.StatusInternalServerError, "edit_turf.html", gin.H{
+			"error": "Failed to update turf",
+		})
+		return
+	}
 
 	c.Redirect(http.StatusFound, "/admin/turfs")
 }
 
 // function for delete a turf
-func AdminDeleteTurf(c *gin.Context) {
+func (h *AdminHandler) AdminDeleteTurf(c *gin.Context) {
 
 	idStr := c.Param("id")
 	id, _ := strconv.Atoi(idStr)
 
-	repository.DeleteTurf(uint(id))
+	h.repo.Delete("id = ?", uint(id))
 
 	c.Redirect(http.StatusFound, "/admin/turfs")
 }

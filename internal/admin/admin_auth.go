@@ -4,21 +4,32 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tibin-peter/Turf-Booking-System/internal/model"
 	"github.com/tibin-peter/Turf-Booking-System/internal/repository"
 	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
+type AdminHandler struct {
+	repo repository.Repository
+}
+
+func NewAdminHandler(repo repository.Repository) *AdminHandler {
+	return &AdminHandler{repo: repo}
+}
+
 // Show login page
-func ShowLoginPage(c *gin.Context) {
+func (h *AdminHandler) ShowLoginPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", nil)
 }
 
 // handle login
-func AdminLogin(c *gin.Context) {
+func (h *AdminHandler) AdminLogin(c *gin.Context) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 
-	admin, err := repository.FindUserByEmail(email)
+	var admin model.User
+
+	err := h.repo.FindOne(&admin, "email = ?", email)
 	if err != nil || admin.Role != "admin" {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
 			"error": "Invalid email or password",
@@ -38,7 +49,7 @@ func AdminLogin(c *gin.Context) {
 }
 
 // logout
-func AdminLogout(c *gin.Context) {
+func (h *AdminHandler) AdminLogout(c *gin.Context) {
 	c.SetCookie("admin_session", "", -1, "/", "", false, true)
 	c.Redirect(http.StatusFound, "/admin/login")
 }
