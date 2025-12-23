@@ -45,10 +45,10 @@ func main() {
 	adminHandler := admin.NewAdminHandler(repo)
 
 	// 7. Register routes
-	routes.RegisterUserRoutes(r, authHandler, userHandler)
+	routes.RegisterUserRoutes(r, authHandler, userHandler, repo)
 	routes.TurfRoutes(r, turfHandler)
 	routes.SlotRoutes(r, slotHandler)
-	routes.BookingRoutes(r, bookingHandler)
+	routes.BookingRoutes(r, bookingHandler, repo)
 	routes.RegisterAdminRoutes(r, adminHandler)
 
 	// 8. Start server

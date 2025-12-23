@@ -1,132 +1,94 @@
 package handlers
 
 import (
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tibin-peter/Turf-Booking-System/internal/model"
 	"github.com/tibin-peter/Turf-Booking-System/internal/service"
-	"github.com/tibin-peter/Turf-Booking-System/internal/utils"
 )
 
-type BoookinHandler struct {
+type BookingHandler struct {
 	service *service.BookingService
 }
 
-func NewBookingHandler(service *service.BookingService) *BoookinHandler {
-	return &BoookinHandler{service: service}
+func NewBookingHandler(s *service.BookingService) *BookingHandler {
+	return &BookingHandler{service: s}
 }
 
-// func for create booking
-func (h *BoookinHandler) CreateBooking(c *gin.Context) {
-	uid, exist := c.Get("user_id")
-	if !exist {
-		utils.JSONError(c, 401, "unauthorized: user id missing")
-		return
-	}
-	userID := uid.(uint)
-	//binding the body
-	var body struct {
+func (h *BookingHandler) CreateBooking(c *gin.Context) {
+	var req struct {
 		TurfID        uint   `json:"turf_id"`
 		SlotID        uint   `json:"slot_id"`
-		Amount        int    `json:"amount"`
 		PaymentMethod string `json:"payment_method"`
 	}
 
-	if err := c.ShouldBindJSON(&body); err != nil {
-		utils.JSONError(c, 400, "invalid booking data")
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	//create booking object
+	if req.SlotID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "slot_id is required"})
+		return
+	}
+
+	userID := c.GetUint("user_id")
 
 	booking := model.Booking{
 		UserID:        userID,
-		TurfID:        body.TurfID,
-		SlotID:        body.SlotID,
-		Amount:        body.Amount,
-		PaymentMethod: body.PaymentMethod,
+		TurfID:        req.TurfID,
+		SlotID:        req.SlotID,
+		PaymentMethod: req.PaymentMethod,
 	}
-	//call service for logic
 
-	if err := h.service.CreateUserBooking(&booking); err != nil {
-		utils.JSONError(c, 400, err.Error())
+	if err := h.service.CreateBooking(&booking); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	//response
 
-	utils.JSONSuccess(c, "booking created successfully", gin.H{
-		"booking": booking,
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "booking created successfully",
+		"booking_id": booking.ID,
 	})
 }
 
-// list user bookings
-func (h *BoookinHandler) ListBookings(c *gin.Context) {
-	uid, exist := c.Get("user_id")
-	if !exist {
-		utils.JSONError(c, 401, "unauthorized user")
+func (h *BookingHandler) ConfirmPayment(c *gin.Context) {
+
+	userID := c.GetUint("user_id")
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	if err := h.service.ConfirmPayment(uint(id), userID); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	userID := uid.(uint)
+
+	c.JSON(200, gin.H{"message": "payment initiated"})
+}
+
+func (h *BookingHandler) ListBookings(c *gin.Context) {
+
+	userID := c.GetUint("user_id")
 
 	bookings, err := h.service.ListUserBookings(userID)
 	if err != nil {
-		utils.JSONError(c, 400, err.Error())
+		c.JSON(500, gin.H{"error": "failed to fetch"})
 		return
 	}
 
-	utils.JSONSuccess(c, "bookings fetched", gin.H{
-		"bookings": bookings,
-	})
+	c.JSON(200, bookings)
 }
 
-// func for cancel booking
-func (h *BoookinHandler) CancelBooking(c *gin.Context) {
-	uid, exists := c.Get("user_id")
-	if !exists {
-		utils.JSONError(c, 401, "unauthorized")
-		return
-	}
-	userID := uid.(uint)
+func (h *BookingHandler) CancelBooking(c *gin.Context) {
 
-	//read booking id from url
-	idParam := c.Param("id")
-	bid, err := strconv.Atoi(idParam)
-	if err != nil {
-		utils.JSONError(c, 400, "invalid booking id")
-		return
-	}
-	//calling service
-	if err := h.service.CancelUserBooking(uint(bid), userID); err != nil {
-		utils.JSONError(c, 400, err.Error())
-		return
-	}
-	utils.JSONSuccess(c, "booking cancelled successfully", nil)
-}
+	userID := c.GetUint("user_id")
+	id, _ := strconv.Atoi(c.Param("id"))
 
-// function for payment conformation
-func (h *BoookinHandler) ConfirmPayment(c *gin.Context) {
-	//get id from jwt middleware
-	uid, exists := c.Get("user_id")
-	if !exists {
-		utils.JSONError(c, 401, "unauthorized user")
-		return
-	}
-	userID := uid.(uint)
-	//get booking id from url
-	idParam := c.Param("id")
-	bookingID, err := strconv.Atoi(idParam)
-	if err != nil {
-		utils.JSONError(c, 400, "invalid booking id")
+	if err := h.service.CancelBooking(uint(id), userID); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	//call the service layer
-	if err := h.service.ConfirmPayment(uint(bookingID), userID); err != nil {
-		utils.JSONError(c, 400, err.Error())
-		return
-	}
-
-	//res
-	utils.JSONSuccess(c, "payment confirmation submitted", nil)
+	c.JSON(200, gin.H{"message": "booking cancelled"})
 }

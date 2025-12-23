@@ -33,8 +33,8 @@ func (r *PgSQLRepository) Update(req interface{}) error {
 }
 
 // delete by query
-func (r *PgSQLRepository) Delete(query string, args ...any) error {
-	return r.DB.Where(query, args...).Delete(nil).Error
+func (r *PgSQLRepository) Delete(model interface{}, query string, args ...any) error {
+	return r.DB.Where(query, args...).Delete(model).Error
 }
 
 // func for find many

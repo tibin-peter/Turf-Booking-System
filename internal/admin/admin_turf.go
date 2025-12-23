@@ -123,11 +123,31 @@ func (h *AdminHandler) AdminEditTurf(c *gin.Context) {
 
 // function for delete a turf
 func (h *AdminHandler) AdminDeleteTurf(c *gin.Context) {
-
 	idStr := c.Param("id")
-	id, _ := strconv.Atoi(idStr)
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "turfs.html", gin.H{
+			"error": "invalid turf id",
+		})
+		return
+	}
 
-	h.repo.Delete("id = ?", uint(id))
+	// Prevent deleting turf with slots
+	var slots []model.TimeSlot
+	_ = h.repo.FindMany(&slots, "turf_id = ?", uint(id))
+	if len(slots) > 0 {
+		c.HTML(http.StatusBadRequest, "turfs.html", gin.H{
+			"error": "cannot delete turf with existing slots",
+		})
+		return
+	}
+
+	if err := h.repo.Delete(&model.Turf{}, "id = ?", uint(id)); err != nil {
+		c.HTML(http.StatusInternalServerError, "turfs.html", gin.H{
+			"error": "failed to delete turf",
+		})
+		return
+	}
 
 	c.Redirect(http.StatusFound, "/admin/turfs")
 }

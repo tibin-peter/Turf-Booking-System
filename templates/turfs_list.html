@@ -6,71 +6,132 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
 
-<header class="bg-blue-700 text-white p-4 text-center">
-    <h1 class="text-lg font-bold">Turf Booking Admin Panel</h1>
-</header>
+<!-- HEADER -->
+    <header class="bg-blue-700 text-white p-4 text-center shadow">
+        <h1 class="text-2xl font-bold">Turf Booking Admin Panel</h1>
+    </header>
 
 <div class="flex">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-white shadow min-h-screen">
-        <nav class="p-4 space-y-2">
-            <a href="/admin/dashboard" class="block p-2 rounded hover:bg-blue-100 font-semibold">Dashboard</a>
-            <a href="/admin/turfs" class="block p-2 rounded hover:bg-blue-100">Manage Turfs</a>
-            <a href="/admin/slots" class="block p-2 rounded hover:bg-blue-100">Manage Slots</a>
-            <a href="/admin/bookings" class="block p-2 rounded hover:bg-blue-100">Manage Bookings</a>
-            <a href="/admin/payments" class="block p-2 rounded hover:bg-blue-100">Payments</a>
-            <a href="/admin/users" class="block p-2 rounded hover:bg-blue-100">Users</a>
-            <a href="/admin/logout" class="block p-2 bg-red-100 text-red-700 rounded">Logout</a>
-            
+    <aside class="w-72 bg-white shadow-xl min-h-screen border-r border-gray-200">
+        <nav class="p-6 space-y-1">
+            <a href="/admin/dashboard"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium">
+                Dashboard
+            </a>
+
+            <a href="/admin/turfs"
+               class="block px-4 py-2 rounded bg-blue-100 text-blue-700 font-medium">
+                Manage Turfs
+            </a>
+
+            <a href="/admin/bookings"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium">
+                Manage Bookings
+            </a>
+
+            <a href="/admin/payments"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium">
+                Manage Payments
+            </a>
+
+            <a href="/admin/users"
+               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-700 font-medium">
+                Manage Users
+            </a>
+
+            <hr class="my-3">
+
+            <div class="pt-6">
+                <a href="/admin/logout"
+                   class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-semibold">
+                    Logout
+                </a>
+            </div>
         </nav>
     </aside>
 
-    <main class="flex-1 p-6">
+    <!-- MAIN -->
+    <main class="flex-1 p-8">
+        <div class="max-w-7xl mx-auto">
 
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold">Turf Management</h1>
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Turf Management</h1>
+                    <p class="text-gray-500 mt-1">Manage all turfs and their details</p>
+                </div>
 
-            <a href="/admin/turfs/add"
-               class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-                Add Turf
-            </a>
+                <a href="/admin/turfs/add"
+                   class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                    Add Turf
+                </a>
+            </div>
+
+            <!-- TABLE -->
+            <div class="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Name</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Location</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Price</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y">
+                        {{ range .Turfs }}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">{{ .ID }}</td>
+                            <td class="px-6 py-4 font-semibold">{{ .Name }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ .Location }}</td>
+                            <td class="px-6 py-4 font-bold text-green-600">₹{{ .PricePerHour }}/hr</td>
+
+                            <td class="px-6 py-4">
+                                <div class="flex gap-3">
+
+                                    <!-- MANAGE SLOTS -->
+                                    <a href="/admin/turfs/{{ .ID }}/slots"
+                                       class="px-3 py-1.5 text-sm font-semibold text-indigo-600
+                                              hover:bg-indigo-50 rounded">
+                                        Slots
+                                    </a>
+
+                                    <!-- EDIT -->
+                                    <a href="/admin/turfs/edit/{{ .ID }}"
+                                       class="px-3 py-1.5 text-sm text-blue-600
+                                              hover:bg-blue-50 rounded">
+                                        Edit
+                                    </a>
+
+                                    <!-- DELETE -->
+                                    <a href="/admin/turfs/delete/{{ .ID }}"
+                                       onclick="return confirm('Delete turf?');"
+                                       class="px-3 py-1.5 text-sm text-red-600
+                                              hover:bg-red-50 rounded">
+                                        Delete
+                                    </a>
+
+                                </div>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
-
-        <table class="w-full bg-white shadow rounded">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-3 text-left">ID</th>
-                    <th class="p-3 text-left">Name</th>
-                    <th class="p-3 text-left">Location</th>
-                    <th class="p-3 text-left">Price</th>
-                    <th class="p-3 text-left">Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                {{ range .Turfs }}
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-3">{{ .ID }}</td>
-                    <td class="p-3">{{ .Name }}</td>
-                    <td class="p-3">{{ .Location }}</td>
-                    <td class="p-3">₹{{ .PricePerHour }}</td>
-                    <td class="p-3 flex gap-3">
-                        <a href="/admin/turfs/edit/{{ .ID }}" class="text-blue-600">Edit</a>
-                        <a href="/admin/turfs/delete/{{ .ID }}" class="text-red-600"
-                           onclick="return confirm('Delete turf?');">
-                           Delete
-                        </a>
-                    </td>
-                </tr>
-                {{ end }}
-            </tbody>
-        </table>
-
     </main>
 </div>
+
+<!-- FOOTER -->
+    <footer class="bg-gray-200 p-4 text-center mt-8">
+        <p class="text-sm text-gray-600">© 2025 Turf Booking System — Admin Panel</p>
+    </footer>
 
 </body>
 </html>

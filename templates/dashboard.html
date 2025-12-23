@@ -1,147 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>Admin Dashboard</title>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 font-sans">
 
-    <!-- HEADER -->
-    <header class="bg-blue-700 text-white p-4 text-center shadow">
-        <h1 class="text-2xl font-bold">Turf Booking Admin Panel</h1>
-    </header>
+<header class="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-5 shadow">
+    <h1 class="text-2xl font-bold text-center">Turf Booking Admin Panel</h1>
+</header>
 
-    <div class="flex">
+<div class="flex">
 
-        <!-- SIDEBAR -->
-        <aside class="w-64 bg-white shadow-lg min-h-screen p-4 space-y-2">
-            <a href="/admin/dashboard" class="block p-2 rounded hover:bg-blue-100 font-semibold">Dashboard</a>
-            <a href="/admin/turfs" class="block p-2 rounded hover:bg-blue-100">Manage Turfs</a>
-            <a href="/admin/slots" class="block p-2 rounded hover:bg-blue-100">Manage Slots</a>
-            <a href="/admin/bookings" class="block p-2 rounded hover:bg-blue-100">Manage Bookings</a>
-            <a href="/admin/payments" class="block p-2 rounded hover:bg-blue-100">Payments</a>
-            <a href="/admin/users" class="block p-2 rounded hover:bg-blue-100">Users</a>
-            <a href="/admin/logout"
-                class="block p-2 rounded bg-red-100 text-red-600 hover:bg-red-200 font-semibold">Logout</a>
-        </aside>
+    <!-- SIDEBAR -->
 
-        <!-- MAIN CONTENT -->
-        <main class="flex-1 p-6">
+    <aside class="w-64 bg-white shadow-lg min-h-screen p-5 space-y-2 border-r">
+        <a href="/admin/dashboard" class="block p-3 rounded bg-blue-50 text-blue-700 font-semibold">Dashboard</a>
+        <a href="/admin/turfs" class="block p-3 rounded hover:bg-gray-100">Manage Turfs</a>
+        <a href="/admin/slots" class="block p-3 rounded hover:bg-gray-100">Manage Slots</a>
+        <a href="/admin/bookings" class="block p-3 rounded hover:bg-gray-100">Manage Bookings</a>
+        <a href="/admin/users" class="block p-3 rounded hover:bg-gray-100">Users</a>
+        <a href="/admin/logout" class="block p-3 rounded bg-red-50 text-red-600 hover:bg-red-100 font-semibold mt-6">
+            Logout
+        </a>
+    </aside>
 
-            <h2 class="text-3xl font-bold mb-6">Dashboard Overview</h2>
+    <!-- MAIN -->
 
-            <!-- STAT CARDS -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <main class="flex-1 p-8">
 
-                <div class="p-6 bg-white shadow rounded border-l-4 border-blue-500">
-                    <h3 class="text-gray-600 font-semibold">Total Users</h3>
-                    <p class="text-3xl font-bold mt-2">{{ .TotalUsers }}</p>
-                </div>
+        <h2 class="text-3xl font-bold mb-8 text-gray-800">Dashboard Overview</h2>
 
-                <div class="p-6 bg-white shadow rounded border-l-4 border-green-500">
-                    <h3 class="text-gray-600 font-semibold">Total Turfs</h3>
-                    <p class="text-3xl font-bold mt-2">{{ .TotalTurfs }}</p>
-                </div>
-
-                <div class="p-6 bg-white shadow rounded border-l-4 border-yellow-500">
-                    <h3 class="text-gray-600 font-semibold">Total Slots</h3>
-                    <p class="text-3xl font-bold mt-2">{{ .TotalSlots }}</p>
-                </div>
-
-                <div class="p-6 bg-white shadow rounded border-l-4 border-red-500">
-                    <h3 class="text-gray-600 font-semibold">Total Bookings</h3>
-                    <p class="text-3xl font-bold mt-2">{{ .TotalBookings }}</p>
-                </div>
-
+        <!-- STATS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+            <div class="p-6 bg-white rounded-xl shadow border-l-4 border-blue-600">
+                <p class="text-gray-500 text-sm">Total Users</p>
+                <p class="text-3xl font-bold">{{ .TotalUsers }}</p>
             </div>
 
-            TWO CHARTS SIDE-BY-SIDE
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                <!-- BOOKINGS TREND -->
-                <div class="bg-white p-6 rounded shadow">
-                    <h3 class="text-xl font-bold mb-4">Bookings Trend (Last 7 Days)</h3>
-                    <canvas id="bookingsChart"></canvas>
-                </div>
-
-                <!-- TURF USAGE PIE -->
-                <div class="bg-white p-6 rounded shadow">
-                    <h3 class="text-xl font-bold mb-4">Turf Usage Breakdown</h3>
-                    <canvas id="turfPieChart"></canvas>
-                </div>
-
+            <div class="p-6 bg-white rounded-xl shadow border-l-4 border-green-600">
+                <p class="text-gray-500 text-sm">Total Turfs</p>
+                <p class="text-3xl font-bold">{{ .TotalTurfs }}</p>
             </div>
 
-            <!-- REVENUE GRAPH -->
-            <div class="mt-8 bg-white p-6 rounded shadow">
-                <h3 class="text-xl font-bold mb-4">Monthly Revenue</h3>
-                <canvas id="revenueChart"></canvas>
+            <div class="p-6 bg-white rounded-xl shadow border-l-4 border-yellow-500">
+                <p class="text-gray-500 text-sm">Total Slots</p>
+                <p class="text-3xl font-bold">{{ .TotalSlots }}</p>
             </div>
 
-        </main>
+            <div class="p-6 bg-white rounded-xl shadow border-l-4 border-red-600">
+                <p class="text-gray-500 text-sm">Total Bookings</p>
+                <p class="text-3xl font-bold">{{ .TotalBookings }}</p>
+            </div>
+        </div>
 
-    </div>
+        <!-- CHARTS -->
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="font-semibold mb-4">Weekly Bookings</h3>
+                <canvas id="weeklyChart"></canvas>
+            </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-gray-200 p-4 text-center mt-8">
-        <p class="text-sm text-gray-600">© 2025 Turf Booking System — Admin Panel</p>
-    </footer>
+            <div class="bg-white p-6 rounded-xl shadow">
+                <h3 class="font-semibold mb-4">Turf Usage</h3>
+                <canvas id="turfChart"></canvas>
+            </div>
+        </div>
 
-    <!-- CHART JS CODE -->
-    <script>
-        // BOOKINGS TREND (Fake demo data)
-        const bookingsCtx = document.getElementById("bookingsChart");
-        new Chart(bookingsCtx, {
-            type: "line",
-            data: {
-                labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-                datasets: [{
-                    label: "Bookings",
-                    data: [3, 5, 2, 8, 4, 7, 6],
-                    borderColor: "#2563eb",
-                    backgroundColor: "rgba(37, 99, 235, 0.3)",
-                    tension: 0.4,
-                    borderWidth: 2,
-                }]
-            }
-        });
+        <div class="mt-10 bg-white p-6 rounded-xl shadow">
+            <h3 class="font-semibold mb-4">Monthly Revenue</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
 
-        // TURF USAGE PIE
-        const pieCtx = document.getElementById("turfPieChart");
-        new Chart(pieCtx, {
-            type: "pie",
-            data: {
-                labels: ["Turf A", "Turf B", "Turf C"],
-                datasets: [{
-                    data: [40, 35, 25],
-                    backgroundColor: ["#2563eb", "#16a34a", "#f97316"]
-                }]
-            }
-        });
+    </main>
+</div>
 
-        // REVENUE CHART
-        const revCtx = document.getElementById("revenueChart");
-        new Chart(revCtx, {
-            type: "bar",
-            data: {
-                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                datasets: [{
-                    label: "Revenue (₹)",
-                    data: [12000, 18000, 22000, 15000, 26000, 30000],
-                    backgroundColor: "#10b981"
-                }]
-            }
-        });
-    </script>
+<script >
+const weeklyLabels = {{ .WeeklyLabels }};
+const weeklyValues = {{ .WeeklyValues }};
+
+const turfLabels = {{ .TurfLabels }};
+const turfValues = {{ .TurfValues }};
+
+const monthLabels = {{ .MonthLabels }};
+const monthValues = {{ .MonthValues }};
+</script>
+
+<script> 
+new Chart(document.getElementById("weeklyChart"), {
+    type: "line",
+    data: {
+        labels: weeklyLabels,
+        datasets: [{
+            label: "Bookings",
+            data: weeklyValues,
+            borderColor: "#2563eb",
+            backgroundColor: "rgba(37,99,235,0.2)",
+            tension: 0.4,
+            fill: true
+        }]
+    }
+});
+
+new Chart(document.getElementById("turfChart"), {
+    type: "pie",
+    data: {
+        labels: turfLabels,
+        datasets: [{
+            data: turfValues,
+            backgroundColor: ["#2563eb", "#16a34a", "#f97316", "#dc2626"]
+        }]
+    }
+});
+
+new Chart(document.getElementById("revenueChart"), {
+    type: "bar",
+    data: {
+        labels: monthLabels,
+        datasets: [{
+            label: "Revenue (₹)",
+            data: monthValues,
+            backgroundColor: "#10b981"
+        }]
+    }
+});
+</script>
+
 
 </body>
-
 </html>

@@ -4,13 +4,13 @@ import "time"
 
 type Booking struct {
 	ID            uint      `gorm:"primaryKey"`
-	UserID        uint      `json:"user_id" gorm:"not null"`
-	TurfID        uint      `json:"turf_id" gorm:"not null"`
-	SlotID        uint      `json:"slot_id" gorm:"not null"`
-	Amount        int       `json:"amount"`
-	PaymentMethod string    `json:"payment_method" gorm:"default:'cash'"`
-	PaymentStatus string    `json:"payment_status" gorm:"default:'pending'"`
-	Status        string    `json:"status" gorm:"default:'pending'"`
+	UserID        uint      `gorm:"not null"`
+	TurfID        uint      `gorm:"not null"`
+	SlotID        uint      `gorm:"not null"`
+	TotalAmount   int       `gorm:"default:0"`
+	PaymentMethod string    `gorm:"type:varchar(20);default:'cash'"`
+	PaymentStatus string    `gorm:"type:varchar(20);default:'pending'"`
+	Status        string    `gorm:"type:varchar(20);default:'pending'"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
