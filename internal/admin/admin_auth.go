@@ -19,7 +19,7 @@ func NewAdminHandler(repo repository.Repository) *AdminHandler {
 
 // Show login page
 func (h *AdminHandler) ShowLoginPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", nil)
+	c.HTML(http.StatusOK, "admin_login.html", nil)
 }
 
 // handle login
@@ -31,14 +31,14 @@ func (h *AdminHandler) AdminLogin(c *gin.Context) {
 
 	err := h.repo.FindOne(&admin, "email = ?", email)
 	if err != nil || admin.Role != "admin" {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "admin_login.html", gin.H{
 			"error": "Invalid email or password",
 		})
 		return
 	}
 
 	if !utils.CheckPassword(admin.Password, password) {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "admin_login.html", gin.H{
 			"error": "Wrong password",
 		})
 		return

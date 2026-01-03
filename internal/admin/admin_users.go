@@ -12,13 +12,13 @@ import (
 func (h *AdminHandler) ListUsers(c *gin.Context) {
 	var users []model.User
 
-	if err := h.repo.FindMany(&users, "role != ?", "admin"); err != nil {
+	if err := h.repo.FindMany(&users, "role = ?", "user"); err != nil {
 		c.HTML(http.StatusInternalServerError, "users.html", gin.H{
 			"error": "failed to load users",
 		})
 		return
 	}
-	c.HTML(http.StatusOK, "users.html", gin.H{
+	c.HTML(http.StatusOK, "admin_users.html", gin.H{
 		"Users": users,
 	})
 }

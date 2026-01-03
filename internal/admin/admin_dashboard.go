@@ -130,7 +130,7 @@ func (h *AdminHandler) ShowDashboardPage(c *gin.Context) {
 	monthLabelsJSON, _ := json.Marshal(monthLabels)
 	monthValuesJSON, _ := json.Marshal(monthValues)
 
-	c.HTML(http.StatusOK, "dashboard.html", gin.H{
+	c.HTML(http.StatusOK, "admin_dashboard.html", gin.H{
 		"TotalUsers":    totalUsers,
 		"TotalTurfs":    totalTurfs,
 		"TotalSlots":    totalSlots,

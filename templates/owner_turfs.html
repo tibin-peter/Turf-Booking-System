@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Turfs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<header class="bg-green-700 text-white p-5 shadow">
+    <h1 class="text-2xl font-bold text-center">Turf Owner Dashboard</h1>
+</header>
+
+<div class="flex">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white shadow min-h-screen p-5 space-y-2">
+        <a href="/owner/dashboard" class="block p-3 rounded hover:bg-gray-100">
+            Dashboard
+        </a>
+        <a href="/owner/turfs" class="block p-3 rounded bg-green-100 text-green-700 font-semibold">
+            My Turfs
+        </a>
+        <a href="/owner/bookings" class="block p-3 rounded hover:bg-gray-100">Bookings</a>
+        <a href="/owner/payments" class="block p-3 rounded hover:bg-gray-100">Payments</a>
+
+        <a href="/owner/logout"
+           class="block p-3 rounded bg-red-50 text-red-600 font-semibold mt-6">
+            Logout
+        </a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 p-8">
+
+        <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">My Turfs</h2>
+            <p class="text-gray-500">Turfs owned by you</p>
+        </div>
+
+        {{ if .error }}
+        <div class="mb-4 bg-red-100 text-red-700 p-4 rounded">
+            {{ .error }}
+        </div>
+        {{ end }}
+
+        <div class="bg-white shadow rounded overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-4 text-left">Name</th>
+                        <th class="p-4 text-left">Location</th>
+                        <th class="p-4 text-left">Price / Hr</th>
+                        <th class="p-4 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                {{ range .Turfs }}
+                    <tr>
+                        <td class="p-4 font-semibold">{{ .Name }}</td>
+                        <td class="p-4">{{ .Location }}</td>
+                        <td class="p-4 text-green-600 font-semibold">₹{{ .PricePerHour }}</td>
+                        <td class="p-4">
+                            <a href="/owner/turfs/{{ .ID }}/slots"
+                               class="text-blue-600 font-semibold hover:underline">
+                                Manage Slots
+                            </a>
+                        </td>
+                    </tr>
+                {{ end }}
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>

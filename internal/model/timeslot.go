@@ -4,7 +4,7 @@ import "time"
 
 type TimeSlot struct {
 	ID          uint      `gorm:"primaryKey"`
-	TurfID      uint      `json:"turf_id"`
+	TurfID      uint      `json:"turf_id" gorm:"not null;index"`
 	Day         time.Time `json:"day"`
 	StartTime   string    `json:"start_time"`
 	EndTime     string    `json:"end_time"`

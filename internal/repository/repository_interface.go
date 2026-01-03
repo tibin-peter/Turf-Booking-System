@@ -8,4 +8,5 @@ type Repository interface {
 	Delete(model interface{}, query string, args ...any) error
 	FindMany(out interface{}, query string, args ...any) error
 	Count(model interface{}, query string, args ...any) (int64, error)
+	FindManyPaginated(out interface{}, query string, limit int, offset int, args ...any) error
 }

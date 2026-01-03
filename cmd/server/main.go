@@ -10,6 +10,7 @@ import (
 	"github.com/tibin-peter/Turf-Booking-System/config"
 	"github.com/tibin-peter/Turf-Booking-System/internal/admin"
 	"github.com/tibin-peter/Turf-Booking-System/internal/handler"
+	"github.com/tibin-peter/Turf-Booking-System/internal/owners"
 	"github.com/tibin-peter/Turf-Booking-System/internal/repository"
 	"github.com/tibin-peter/Turf-Booking-System/internal/routes"
 	"github.com/tibin-peter/Turf-Booking-System/internal/service"
@@ -43,6 +44,7 @@ func main() {
 	slotHandler := handlers.NewSlotHandler(slotService)
 	bookingHandler := handlers.NewBookingHandler(bookingService)
 	adminHandler := admin.NewAdminHandler(repo)
+	ownerHandler := owners.NewOwnerHandler(repo)
 
 	// 7. Register routes
 	routes.RegisterUserRoutes(r, authHandler, userHandler, repo)
@@ -50,6 +52,7 @@ func main() {
 	routes.SlotRoutes(r, slotHandler)
 	routes.BookingRoutes(r, bookingHandler, repo)
 	routes.RegisterAdminRoutes(r, adminHandler)
+	routes.RegisterOwnerRoutes(r, ownerHandler)
 
 	// 8. Start server
 	port := os.Getenv("PORT")
@@ -61,7 +64,11 @@ func main() {
 }
 
 func loadTemplates() *template.Template {
-	tmpl := template.New("")
+	tmpl := template.New("").Funcs(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"sub": func(a, b int) int { return a - b },
+	})
 	template.Must(tmpl.ParseGlob("templates/*.html"))
+
 	return tmpl
 }

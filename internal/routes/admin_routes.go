@@ -38,16 +38,21 @@ func RegisterAdminRoutes(r *gin.Engine, adminH *admin.AdminHandler) {
 
 		//booking related
 		adminPanel.GET("/bookings", adminH.ListBookings)
-		adminPanel.GET("/bookings/:id/approve", adminH.ApproveBooking)
-		adminPanel.GET("/bookings/:id/cancel", adminH.CancelBooking)
+		adminPanel.GET("/bookings/:id/force-cancel", adminH.ForceCancelBooking)
 
 		//payment related
 		adminPanel.GET("/payments", adminH.ListPayments)
-		adminPanel.GET("/payments/:id/approve", adminH.ApprovePayment)
 
 		//user related
 		adminPanel.GET("/users", adminH.ListUsers)
 		adminPanel.GET("users/:user_id/block", adminH.BlockUser)
 		adminPanel.GET("users/:user_id/unblock", adminH.UnblockUser)
+
+		//owner related
+		adminPanel.GET("/owners", adminH.ListOwners)
+		adminPanel.GET("/owners/add", adminH.ShowAddOwnerPage)
+		adminPanel.POST("/owners/add", adminH.CreateOwner)
+		adminPanel.GET("/owners/:owner_id/block", adminH.BlockOwner)
+		adminPanel.GET("/owners/:owner_id/unblock", adminH.UnblockOwner)
 	}
 }

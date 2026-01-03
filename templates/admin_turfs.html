@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turf Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+
+<header class="bg-gradient-to-r from-blue-700 to-blue-600 text-white p-5 shadow">
+    <h1 class="text-2xl font-bold text-center">Turf Booking Admin Panel</h1>
+</header>
+
+<div class="flex">
+
+    <aside class="w-64 bg-white shadow-lg min-h-screen p-5 space-y-2 border-r">
+        <a href="/admin/dashboard" class="block p-3 rounded hover:bg-gray-100" >Dashboard</a>
+        <a href="/admin/turfs" class="block p-3 rounded bg-blue-50 text-blue-700 font-semibold">Manage Turfs</a>
+        <a href="/admin/bookings" class="block p-3 rounded hover:bg-gray-100">Manage Bookings</a>
+        <a href="/admin/payments" class="block p-3 rounded hover:bg-gray-100">Manage Payments</a>
+        <a href="/admin/users" class="block p-3 rounded hover:bg-gray-100">Manage Users</a>
+        <a href="/admin/owners" class="block p-3 rounded hover:bg-gray-100">Manage Owners</a>
+        <hr class="my-3">
+        <a href="/admin/logout" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-semibold">
+            Logout
+        </a>
+    </aside>
+
+    <main class="flex-1 p-8">
+        <div class="max-w-7xl mx-auto">
+
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Turf Management</h1>
+                    <p class="text-gray-500 mt-1">Manage all turfs and their details</p>
+                </div>
+
+                <a href="/admin/turfs/add"
+                   class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">
+                    Add Turf
+                </a>
+            </div>
+
+            <div class="bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
+
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase">Name</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase">Location</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase">Price</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold uppercase">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y">
+                        {{ range .Turfs }}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">{{ .ID }}</td>
+                            <td class="px-6 py-4 font-semibold">{{ .Name }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ .Location }}</td>
+                            <td class="px-6 py-4 font-bold text-green-600">
+                                ₹{{ .PricePerHour }}/hr
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex gap-3">
+                                    <a href="/admin/turfs/{{ .ID }}/slots" class="text-indigo-600">Slots</a>
+                                    <a href="/admin/turfs/edit/{{ .ID }}" class="text-blue-600">Edit</a>
+                                    <a href="/admin/turfs/delete/{{ .ID }}"
+                                       onclick="return confirm('Delete turf?');"
+                                       class="text-red-600">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+
+               <!-- pagination -->
+
+                {{ if gt .Pagination.TotalPages 1 }}
+                <div class="flex justify-center gap-3 p-6 border-t">
+
+                    {{ if gt .Pagination.Page 1 }}
+                    <a href="?page={{ sub .Pagination.Page 1 }}"
+                       class="px-4 py-2 border rounded hover:bg-gray-100">
+                        Prev
+                    </a>
+                    {{ end }}
+
+                    <span class="px-4 py-2 bg-blue-600 text-white rounded">
+                        Page {{ .Pagination.Page }} of {{ .Pagination.TotalPages }}
+                    </span>
+
+                    {{ if lt .Pagination.Page .Pagination.TotalPages }}
+                    <a href="?page={{ add .Pagination.Page 1 }}"
+                       class="px-4 py-2 border rounded hover:bg-gray-100">
+                        Next
+                    </a>
+                    {{ end }}
+
+                </div>
+                {{ end }}
+
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

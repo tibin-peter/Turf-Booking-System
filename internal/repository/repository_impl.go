@@ -52,3 +52,19 @@ func (r *PgSQLRepository) Count(model interface{}, query string, args ...any) (i
 	err := db.Count(&count).Error
 	return count, err
 }
+
+//func for the pagination
+func (r *PgSQLRepository) FindManyPaginated(
+	out interface{},
+	query string,
+	limit int,
+	offset int,
+	args ...any,
+) error {
+	return r.DB.
+		Where(query, args...).
+		Limit(limit).
+		Offset(offset).
+		Find(out).
+		Error
+}
